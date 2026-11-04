@@ -36,6 +36,14 @@ input{background:#fff;box-shadow:none;width:100%;text-align:center;margin:10px 0
 .pair span{font-size:34px}
 .ic{width:76px;height:76px;border:4px solid var(--ink);border-radius:10px;overflow:hidden;box-shadow:0 4px 0 var(--ink);background:#fff}
 .card .ic img{width:100%;height:100%;max-height:none;object-fit:cover;object-position:top;transform:scale(1.8);image-rendering:pixelated;border:0;border-radius:0;margin:0}
+textarea{font-family:inherit;font-size:16px;width:100%;border:3px solid var(--ink);border-radius:12px;padding:10px;background:#fff;margin:4px 0 8px;resize:vertical;min-height:90px;touch-action:manipulation;color:var(--ink)}
+label{touch-action:manipulation}
+.sc{border:3px dashed var(--ink);border-radius:12px;padding:10px;margin:10px 0;background:#fff3e4}
+.sc input,.sc textarea{margin:6px 0;text-align:left}
+.pv{width:100%;max-height:140px;object-fit:cover;border:3px solid var(--ink);border-radius:8px;margin:6px 0}
+.fl{display:inline-block;border:3px solid var(--ink);border-radius:12px;padding:6px 12px;background:var(--gold);box-shadow:0 3px 0 var(--ink);font-size:15px;cursor:pointer;margin-right:8px}
+#edit .card input{text-align:left;margin:4px 0 10px}
+#ft{white-space:pre-line}
 </style>
 </head>
 <body>
@@ -47,18 +55,36 @@ input{background:#fff;box-shadow:none;width:100%;text-align:center;margin:10px 0
 <div id="start" class="ov on"><div class="card">
   <h1>Nuestra historia</h1>
   <p class="who">un mini juego para una persona muy especial</p>
-  <p>Tú eres la jugadora. Yo soy <b>Gatito Eras</b>, tu guía. Camina hacia adelante y toca las cosas brillantes.</p>
-  <p>¿Cómo quieres que te llame?</p>
-  <input id="nm" maxlength="14" value="Kathy" autocomplete="off">
-  <button id="go">Empezar 💛</button>
-  <p class="who" style="margin-top:12px">Mejor con sonido 🎧 · móvil: joystick · PC: flechas o WASD</p>
+  <div id="m1">
+   <p>Tú eres la jugadora. Yo soy <b>Gatito Eras</b>, tu guía. Camina hacia adelante y toca las cosas brillantes.</p>
+   <p>¿Cómo quieres que te llame?</p>
+   <input id="nm" maxlength="14" value="Kathy" autocomplete="off">
+   <button id="go" style="width:100%;margin-bottom:12px">💛 Nuestra historia</button>
+   <button id="balt" class="alt" style="width:100%">✨ Historia alterna</button>
+   <p class="who" style="margin-top:12px">Mejor con sonido 🎧 · móvil: joystick · PC: flechas o WASD</p>
+  </div>
+  <div id="m2" style="display:none">
+   <p>Crea tu propia historia: tú escribes los recuerdos y luego ves el resultado jugando.</p>
+   <button id="ed" style="width:100%;margin-bottom:12px">✏️ Editar mi historia</button>
+   <button id="pl" class="alt" style="width:100%;margin-bottom:12px">▶️ Ver resultado</button>
+   <button id="bk" style="width:100%;background:#fff">← Volver</button>
+  </div>
+</div></div>
+
+<div id="edit" class="ov"><div class="card" style="max-width:520px;text-align:left">
+  <h2 style="text-align:center">✏️ Editar mi historia</h2>
+  <div id="eb"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px">
+   <button id="es">💾 Guardar</button><button id="ep" class="alt">▶️ Guardar y ver</button><button id="ec" style="background:#fff">Cerrar</button>
+  </div>
+  <p class="who" id="emsg" style="text-align:center;margin-top:8px"></p>
 </div></div>
 
 <div id="modal" class="ov"><div class="card">
   <img id="mi" alt="" style="display:none">
-  <div class="pair"><div><div class="ic"><img src="assets/ella.png" style="transform-origin:35% 32%" alt=""></div><small id="n1"></small></div><span id="me"></span><div><div class="ic"><img src="assets/el.png" style="transform-origin:46% 31%" alt=""></div><small id="n2"></small></div></div>
+  <div class="pair"><div class="ph"><div class="ic"><img src="assets/ella.png" style="transform-origin:35% 32%" alt=""></div><small id="n1"></small></div><span id="me"></span><div class="ph"><div class="ic"><img src="assets/el.png" style="transform-origin:46% 31%" alt=""></div><small id="n2"></small></div></div>
   <h2 id="mt"></h2>
-  <p class="who">Gatito Eras 🐱 dice:</p>
+  <p class="who" id="who">Gatito Eras 🐱 dice:</p>
   <div id="mx"></div>
   <button id="mb">Continuar</button>
 </div></div>
@@ -69,6 +95,7 @@ input{background:#fff;box-shadow:none;width:100%;text-align:center;margin:10px 0
   <div class="row" id="fb">
     <button id="yes">Sí, intentémoslo 💛</button>
     <button id="wait" class="alt">Necesito tiempo 🤍</button>
+    <button id="back" class="alt" style="display:none">↩️ Volver al menú</button>
   </div>
   <p id="fr" style="margin-top:12px;font-size:16px"></p>
 </div></div>
@@ -80,7 +107,7 @@ let her='Kathy',GN='Gatito Eras',W,H,S,started=false,modalOpen=false,cur=0;
 const WW=3000,WH=400;
 
 /* ---------- ESCENAS ---------- */
-const scenes=[
+const OURS=[
 {e:'🎮',t:'Nos conocimos',img:'assets/foto1.jpeg',x:560,y:250,
  x1:`Nos conocimos, mi pequeñita {n}, cuando jugábamos. Sin darme cuenta me terminé enamorando de ti.\n\nEse día pasamos toda la noche jugando, y al día siguiente nos quedamos hablando. Sin querer, ahí empezó nuestra historia.`},
 {e:'❤️',t:'Nos enamoramos',x:980,y:200,
@@ -94,8 +121,12 @@ const scenes=[
 {e:'❤️‍🩹',t:'Volviste',x:2650,y:230,
  x1:`A pesar de todo, volviste, mi amor.\n\nSé que te sientes dañada y que no sabes lo que quieres. Sé que estás confundida, pero me prometiste que cuando volvieras no te ibas a volver a ir.\n\nAunque no sé si todavía me amas, yo te amo a ti. Eres de las personas más importantes que he conocido, y estar contigo me hizo querer ser mejor.\n\nMe duele saber que estás dañada, más sabiendo que este gatito ama a su niña tiquita con todo el corazón. Quisiera abrazarte y que todo pesara menos.\n\nNo te pido nada hoy. Solo quiero que sepas que me importas, y que aquí estoy.`}
 ];
+let scenes=OURS;
 const quotes=['Eres más fuerte de lo que crees 💪','Aquí estoy contigo, siempre 💛','Cada paso cuenta, {n}','Me encanta verte avanzar ✨','Tu sonrisa es mi parte favorita del juego 🎮','Respira. No hay prisa 🌙','Eres lo más bonito que me ha pasado 🌸','Estoy orgulloso de ti, tiquita 🤍','Tú ganas incluso cuando sientes que no 🏆'];
 const T=s=>s.replace(/\{n\}/g,her);
+let alt=false,Q=quotes,guy,signT=['Nos','conocemos'];
+const QA=['¡Tú puedes, {n}! 💪','Cada paso cuenta ✨','Vas muy bien 🎮','Respira, no hay prisa 🌙','Esta historia es tuya 🌸','¡Sigue explorando! 🧭'];
+function esc(x){return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 
 /* ---------- ENTRADA ---------- */
 const keys={};let jx=0,jy=0;
@@ -130,7 +161,9 @@ $('mute').onclick=()=>{on=!on;$('mute').textContent=on?'🔊':'🔇';if(mg)mg.ga
 
 /* ---------- DIBUJO DE PERSONAJES (pixel art en código) ---------- */
 const HER={skin:'#f0b48c',sk2:'#d4906a',hair:'#6b3a22',hl:'#8f5a3a',shirt:'#f4f7fb',sh2:'#c3cedd',pants:'#3a4a6a',shoe:'#e86a8a',long:1,her:1};
-const GUY={skin:'#c88a5c',sk2:'#a96d44',hair:'#2a1a14',hl:'#4a3228',shirt:'#f0d77a',sh2:'#cfae4a',pants:'#3d3d46',shoe:'#e8e8e8',long:0};
+const GUY={skin:'#c88a5c',sk2:'#a96d44',hair:'#2a1a14',hl:'#4a3228',shirt:'#f0d77a',sh2:'#cfae4a',pants:'#3d3d46',shoe:'#e8e8e8',long:0,curly:1};
+const GUY2={skin:'#f7d6bd',sk2:'#dba98c',hair:'#3b2a20',hl:'#5a4232',shirt:'#3a6fd8',sh2:'#274c99',pants:'#2b2b3d',shoe:'#2a9ae0',long:0,cap:'#e23a2e',cap2:'#a8231a'};
+guy=GUY;
 /* Estilo Pokémon: chibi, contorno negro, 4 direcciones (d,u,l,r) */
 function person(g,x,y,c,dir,walk,sc=1.15){
  const sh=[],A=(col,a,b,w,h)=>sh.push([col,a,b,w,h]);
@@ -145,11 +178,11 @@ function person(g,x,y,c,dir,walk,sc=1.15){
    A(c.hair,-7,-18,14,4);A(c.hair,-7,-15,2,c.long?10:4);A(c.hair,5,-15,2,c.long?10:4);A(c.hair,-5,-14,3,1);A(c.hair,2,-14,3,1);A(c.hl,-3,-18,3,1);
    A(E,-4,-11,2,3);A(E,2,-11,2,3);A('#fff',-4,-11,1,1);A('#fff',2,-11,1,1);A('#d97a72',-1,-9,2,1);
    if(c.her){A('#ff7aa8',2,-20,4,3);A('#d94d80',3,-19,1,1);A('#cfd8e0',-2,-7,4,1);A('#9fb0c0',-1,-6,2,1);A('#f48fb1',-4,-7,1,3);A('#f48fb1',3,-7,1,3)}
-   else{A(c.hair,-6,-20,3,2);A(c.hair,-2,-21,4,3);A(c.hair,3,-20,3,2);A(c.hair,-8,-17,2,3);A(c.hair,6,-17,2,3)}
+   else if(c.curly){A(c.hair,-6,-20,3,2);A(c.hair,-2,-21,4,3);A(c.hair,3,-20,3,2);A(c.hair,-8,-17,2,3);A(c.hair,6,-17,2,3)}
   }else{
    A(c.hair,-7,-18,14,c.long?14:10);A(c.hl,-3,-17,3,1);
    if(c.her)A('#ff7aa8',2,-20,4,3);
-   else{A(c.hair,-6,-20,3,2);A(c.hair,-2,-21,4,3);A(c.hair,3,-20,3,2);A(c.skin,-3,-8,6,1)}
+   else{if(c.curly){A(c.hair,-6,-20,3,2);A(c.hair,-2,-21,4,3);A(c.hair,3,-20,3,2)}A(c.skin,-3,-8,6,1)}
   }
  }else{
   const d=sw>.3?2:sw<-.3?-2:0;
@@ -160,8 +193,9 @@ function person(g,x,y,c,dir,walk,sc=1.15){
   A(c.hair,-6,-18,13,4);A(c.hair,1,-15,6,c.long?9:6);A(c.hair,-6,-15,2,1);A(c.hl,-2,-18,3,1);
   A(E,-4,-11,2,3);A('#fff',-4,-11,1,1);A('#d97a72',-3,-9,1,1);
   if(c.her){A('#ff7aa8',1,-20,4,3);A('#cfd8e0',-3,-7,2,1)}
-  else{A(c.hair,-5,-20,3,2);A(c.hair,-1,-21,4,3);A(c.hair,3,-20,3,2);A(c.hair,5,-17,3,3)}
+  else if(c.curly){A(c.hair,-5,-20,3,2);A(c.hair,-1,-21,4,3);A(c.hair,3,-20,3,2);A(c.hair,5,-17,3,3)}
  }
+ if(c.cap){if(dir==='d'){A(c.cap,-7,-20,14,5);A(c.cap2,-6,-15,12,1);A('#fff',-1,-19,2,2)}else if(dir==='u'){A(c.cap,-7,-20,14,8)}else{A(c.cap,-6,-20,13,5);A(c.cap2,-10,-15,5,1)}}
  g.save();g.translate(x,y);
  g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(0,0,6*sc*2,2*sc*2,0,0,7);g.fill();
  g.scale(dir==='r'?-sc*2:sc*2,sc*2);
@@ -184,26 +218,63 @@ const say=(s,ms=3800)=>{bubble=T(s);bt=ms/1000};
 /* ---------- MODAL ---------- */
 function openScene(i){
  const s=scenes[i];modalOpen=true;
- $('me').textContent=s.e;$('n1').textContent=her;$('n2').textContent=GN;$('mt').textContent=s.t;
- $('mx').innerHTML=T(s.x1).split('\n\n').map(p=>`<p>${p}</p>`).join('');
+ $('me').textContent=s.e;$('n1').textContent=her;$('n2').textContent=GN;$('who').textContent=GN+(alt?'':' 🐱')+' dice:';document.querySelectorAll('.ph').forEach(e=>e.style.display=alt?'none':'');$('mt').textContent=s.t;
+ $('mx').innerHTML=esc(T(s.x1)).split('\n\n').map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
  const im=$('mi');if(s.img){im.src=s.img;im.style.display='block'}else im.style.display='none';
  $('mb').textContent=i==scenes.length-1?'Un último detalle 💌':'Continuar';
  $('modal').classList.add('on');
 }
 $('mb').onclick=()=>{$('modal').classList.remove('on');modalOpen=false;cur++;
  if(cur>=scenes.length)return finale();
- say(['Sigamos, {n} 💛','Hay más recuerdos adelante ✨','Ven, por aquí 🌙','Ya casi llegamos 🌧️','Un poquito más, mi niña 🤍'][Math.min(cur-1,4)]);
+ say((alt?['¡Sigue, {n}!','Hay más por descubrir ✨','Ven, por aquí 🌙','¡Ya casi llegamos!','¡Un poquito más!']:['Sigamos, {n} 💛','Hay más recuerdos adelante ✨','Ven, por aquí 🌙','Ya casi llegamos 🌧️','Un poquito más, mi niña 🤍'])[Math.min(cur-1,4)]);
 };
-$('go').onclick=()=>{her=($('nm').value.trim()||'Kathy');$('start').classList.remove('on');started=true;music();
+function begin(greet){$('start').classList.remove('on');started=true;music();
  $('hint').textContent='Camina hacia la derecha y toca los objetos brillantes →';
- setTimeout(()=>say('Hola {n}. Soy '+GN+'. Te acompaño en este camino 💛',4500),600);
- setTimeout(()=>$('hint').textContent='',9000)};
+ setTimeout(()=>say(greet,4500),600);setTimeout(()=>$('hint').textContent='',9000)}
+$('go').onclick=()=>{her=($('nm').value.trim()||'Kathy');alt=false;begin('Hola {n}. Soy '+GN+'. Te acompaño en este camino 💛')};
+
+/* ---------- HISTORIA ALTERNA ---------- */
+const KEY='altStoryV1',EMPTY='Esta escena aún está vacía. ¡Entra al modo editor y escribe tu recuerdo! ✏️';
+const blank=()=>({guide:'Guía',sign:'Mi historia',final:'',scenes:OURS.map(()=>({t:'',x1:'',img:''}))});
+function loadAlt(){const b=blank();try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d){b.guide=d.guide||b.guide;b.sign=d.sign||b.sign;b.final=d.final||'';(d.scenes||[]).forEach((x,i)=>{if(b.scenes[i])Object.assign(b.scenes[i],x)})}}catch(e){}return b}
+function saveAlt(){try{localStorage.setItem(KEY,JSON.stringify(ALT));return true}catch(e){return false}}
+let ALT=loadAlt();
+function renderEdit(){
+ $('eb').innerHTML=`<p class="who">Nombre del guía</p><input id="eg" maxlength="14" value="${esc(ALT.guide)}">
+ <p class="who">Letrero de entrada (ej: Mi historia)</p><input id="esg" maxlength="20" value="${esc(ALT.sign)}">`+
+ OURS.map((s,i)=>`<div class="sc"><b>${s.e} Escena ${i+1}</b>
+ <input data-i="${i}" data-k="t" maxlength="30" placeholder="Título" value="${esc(ALT.scenes[i].t)}">
+ <textarea data-i="${i}" data-k="x1" placeholder="Escribe aquí tu recuerdo…">${esc(ALT.scenes[i].x1)}</textarea>
+ <label class="fl">📷 Foto<input type="file" accept="image/*" data-i="${i}" hidden></label>
+ ${ALT.scenes[i].img?`<img src="${ALT.scenes[i].img}" class="pv" alt=""><button data-rm="${i}" class="alt" style="padding:4px 10px;font-size:14px">Quitar foto</button>`:''}</div>`).join('')+
+ `<p class="who">Mensaje final</p><textarea id="ef" placeholder="Lo último que quieres decir…">${esc(ALT.final)}</textarea>`;
+}
+function collect(){ALT.guide=$('eg').value.trim()||'Guía';ALT.sign=$('esg').value.trim()||'Mi historia';ALT.final=$('ef').value;
+ $('eb').querySelectorAll('[data-k]').forEach(el=>{ALT.scenes[el.dataset.i][el.dataset.k]=el.value})}
+function pic(file,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,640/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.72))};im.src=r.result};r.readAsDataURL(file)}
+$('eb').addEventListener('change',e=>{const f=e.target;if(f.type==='file'&&f.files[0]){collect();const i=f.dataset.i;pic(f.files[0],d=>{ALT.scenes[i].img=d;renderEdit()})}});
+$('eb').addEventListener('click',e=>{const r=e.target.dataset.rm;if(r!==undefined){collect();ALT.scenes[r].img='';renderEdit()}});
+$('balt').onclick=()=>{her=($('nm').value.trim()||'Kathy');$('m1').style.display='none';$('m2').style.display='block'};
+$('bk').onclick=()=>{$('m2').style.display='none';$('m1').style.display='block'};
+$('ed').onclick=()=>{renderEdit();$('start').classList.remove('on');$('edit').classList.add('on');$('emsg').textContent=''};
+$('ec').onclick=()=>{$('edit').classList.remove('on');$('start').classList.add('on')};
+$('es').onclick=()=>{collect();$('emsg').textContent=saveAlt()?'¡Guardado! ✨':'No se pudo guardar. Prueba con fotos más pequeñas.'};
+function playAlt(){
+ alt=true;GN=ALT.guide||'Guía';guy=GUY2;Q=QA;
+ const w=ALT.sign.split(' ');signT=w.length>1?[w[0],w.slice(1).join(' ')]:[ALT.sign,''];
+ scenes=OURS.map((s,i)=>({...s,t:ALT.scenes[i].t||'Escena '+(i+1),x1:ALT.scenes[i].x1||EMPTY,img:ALT.scenes[i].img||''}));
+ begin('Hola {n}. Soy '+GN+'. ¡Vamos a ver tu historia! ✨');
+}
+$('ep').onclick=()=>{collect();saveAlt();$('edit').classList.remove('on');playAlt()};
+$('pl').onclick=playAlt;
+$('back').onclick=()=>location.reload();
 
 /* ---------- FINAL ---------- */
 let finOn=false,hearts=[];
 function finale(){
- finOn=true;$('fin').classList.add('on');
- $('ft').innerHTML=`“¿Quieres volver a intentarlo? Sé que me dijiste que como amigos, pero la verdad es que en el fondo sé que todavía te amo, mi tiquita preciosa.” 💛`;
+ finOn=true;$('fin').classList.add('on');$('fr').innerHTML='';$('fb').style.display='flex';
+ $('yes').style.display=$('wait').style.display=alt?'none':'';$('back').style.display=alt?'':'none';
+ $('ft').textContent=alt?(ALT.final.trim()||'Fin. ¡Gracias por jugar! ✨'):'“¿Quieres volver a intentarlo? Sé que me dijiste que como amigos, pero la verdad es que en el fondo sé que todavía te amo, mi tiquita preciosa.” 💛';
  finLoop();
 }
 $('yes').onclick=()=>{$('fb').style.display='none';$('fr').innerHTML=`Gracias por llegar hasta el final, ${her}. Sea cual sea el camino, te quiero muchísimo. 💛<br><small>— ${GN}</small>`;for(let i=0;i<30;i++)hearts.push(newHeart(true))};
@@ -218,7 +289,7 @@ function finLoop(){
  f.fillStyle='#fff';for(let i=0;i<30;i++){f.globalAlpha=.4+.6*Math.abs(Math.sin(t+i));f.fillRect((i*97)%360,(i*53)%110,2,2)}f.globalAlpha=1;
  f.fillStyle='#4f9a6a';f.fillRect(0,170,360,50);
  f.font='54px serif';f.textAlign='center';f.fillText('💛',180,100+Math.sin(t*2)*5);
- person(f,135,195,HER,'d',0,2);person(f,225,195,GUY,'d',0,2);
+ person(f,135,195,HER,'d',0,2);person(f,225,195,guy,'d',0,2);
  hearts.forEach(h=>{h.y-=h.v/60;h.x+=Math.sin(t+h.p)*.3;if(h.y<-20){h.y=235;h.x=Math.random()*360}f.font=h.s+'px serif';f.fillText(h.e,h.x,h.y)});
  requestAnimationFrame(finLoop);
 }
@@ -230,7 +301,7 @@ function emo(e,x,y,s,a=1){ctx.globalAlpha=a;ctx.font=s+'px serif';ctx.textAlign=
 function sign(x,y){
  ctx.fillStyle='#6b4423';ctx.fillRect(x-40,y-30,6,34);ctx.fillRect(x+34,y-30,6,34);
  ctx.fillStyle='#c98f52';ctx.fillRect(x-52,y-72,104,44);ctx.strokeStyle='#4a2d14';ctx.lineWidth=3;ctx.strokeRect(x-52,y-72,104,44);
- ctx.fillStyle='#3a2210';ctx.font='600 17px Fredoka, sans-serif';ctx.textAlign='center';ctx.fillText('Nos',x,y-52);ctx.fillText('conocemos',x,y-34);
+ ctx.fillStyle='#3a2210';ctx.font='600 '+Math.min(17,Math.floor(170/Math.max(signT[0].length,(signT[1]||'').length,1)))+'px Fredoka, sans-serif';ctx.textAlign='center';ctx.fillText(signT[0],x,y-52);ctx.fillText(signT[1]||'',x,y-34);
 }
 function bubbleDraw(x,y,s){
  ctx.font='600 13px Fredoka, sans-serif';const w=Math.min(190,ctx.measureText(s).width+18);
@@ -254,7 +325,7 @@ function frame(now){
  // interacción
  if(started&&!modalOpen&&!finOn&&cur<scenes.length){const s=scenes[cur];if(Math.hypot(P.x-s.x,(P.y-s.y)*1.4)<42)openScene(cur)}
  // frases del guía
- if(started&&!modalOpen&&!finOn){bt-=dt;qt-=dt;if(qt<=0&&bt<=0){say(quotes[Math.floor(Math.random()*quotes.length)]);qt=11+Math.random()*6}}
+ if(started&&!modalOpen&&!finOn){bt-=dt;qt-=dt;if(qt<=0&&bt<=0){say(Q[Math.floor(Math.random()*Q.length)]);qt=11+Math.random()*6}}
  // cámara
  const vw=W/S;cam=Math.max(0,Math.min(WW-vw,P.x-vw/2));
  // dibujo
@@ -272,7 +343,7 @@ function frame(now){
   emo(s.e,s.x,s.y-8+bob,40,done?.35:1);if(done)emo('✓',s.x+18,s.y-30,16);
  });
  flies.forEach(f=>{const a=.4+.6*Math.abs(Math.sin(t*2+f.p));ctx.fillStyle=`rgba(255,240,150,${a})`;ctx.fillRect(f.x+Math.sin(t+f.p)*8,f.y+Math.cos(t*.8+f.p)*8,2,2)});
- [[P,HER],[G,GUY]].sort((a,b)=>a[0].y-b[0].y).forEach(([o,c])=>person(ctx,o.x,o.y,c,o.d,o.w));
+ [[P,HER],[G,guy]].sort((a,b)=>a[0].y-b[0].y).forEach(([o,c])=>person(ctx,o.x,o.y,c,o.d,o.w));
  ctx.font='600 11px Fredoka, sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff6ec';
  ctx.fillText(her,P.x,P.y-50);ctx.fillText(GN,G.x,G.y-50);
  if(bt>0&&started)bubbleDraw(G.x,G.y-58,bubble);
