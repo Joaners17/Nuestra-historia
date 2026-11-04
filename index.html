@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Nuestra historia 💛</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2b1d3a;--rose:#f4a6b8;--gold:#ffd98a;--paper:#fff6ec;--night:#241a3d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--night);font-family:'Fredoka',sans-serif;color:var(--ink)}
+canvas{display:block;position:fixed;inset:0;image-rendering:pixelated}
+.ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(36,26,61,.72);z-index:10;overflow:auto;touch-action:pan-y}
+.ov.on{display:flex}
+.card{background:var(--paper);border:4px solid var(--ink);border-radius:18px;box-shadow:0 8px 0 var(--ink);max-width:440px;width:100%;padding:18px;text-align:center;max-height:94vh;overflow:auto;touch-action:pan-y}
+.card img{width:100%;max-height:32vh;object-fit:cover;border:3px solid var(--ink);border-radius:10px;margin-bottom:10px}
+.card h2{font-family:'Caveat',cursive;font-size:34px;margin:4px 0 6px}
+.who{font-size:13px;opacity:.7;margin:0 0 6px}
+.card p{margin:0 0 10px;line-height:1.5;font-size:16px}
+button,input{font-family:inherit;font-size:17px;border:3px solid var(--ink);border-radius:12px;padding:10px 18px;background:var(--rose);color:var(--ink);box-shadow:0 4px 0 var(--ink);touch-action:manipulation}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+button.alt{background:var(--gold)}
+input{background:#fff;box-shadow:none;width:100%;text-align:center;margin:10px 0 14px}
+#start .card{background:linear-gradient(#fff6ec,#ffe3e8)}
+#start h1{font-family:'Caveat',cursive;font-size:46px;margin:0;line-height:1}
+#joy{position:fixed;left:22px;bottom:calc(26px + env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,246,236,.22);border:3px solid rgba(255,246,236,.55);display:none;z-index:5}
+#knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,246,236,.85);border:3px solid var(--ink)}
+@media (pointer:coarse){#joy{display:block}}
+#mute{position:fixed;right:12px;top:12px;z-index:6;padding:6px 12px;font-size:20px}
+#hint{position:fixed;left:0;right:0;top:14px;text-align:center;color:#fff6ec;font-size:14px;z-index:4;pointer-events:none;text-shadow:0 2px 0 var(--ink)}
+#fin canvas{position:static;width:100%;max-width:360px;height:auto;border:4px solid var(--ink);border-radius:14px;margin-bottom:10px;background:#2b1d3a}
+#fin .big{font-family:'Caveat',cursive;font-size:29px;line-height:1.15;margin:6px 0 14px}
+#fin .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.pair{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:10px}
+.pair small{display:block;font-size:12px;margin-top:6px}
+.pair span{font-size:34px}
+.ic{width:76px;height:76px;border:4px solid var(--ink);border-radius:10px;overflow:hidden;box-shadow:0 4px 0 var(--ink);background:#fff}
+.card .ic img{width:100%;height:100%;max-height:none;object-fit:cover;object-position:top;transform:scale(1.8);image-rendering:pixelated;border:0;border-radius:0;margin:0}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hint"></div>
+<button id="mute">🔊</button>
+<div id="joy"><div id="knob"></div></div>
+
+<div id="start" class="ov on"><div class="card">
+  <h1>Nuestra historia</h1>
+  <p class="who">un mini juego para una persona muy especial</p>
+  <p>Tú eres la jugadora. Yo soy <b>Gatito Eras</b>, tu guía. Camina hacia adelante y toca las cosas brillantes.</p>
+  <p>¿Cómo quieres que te llame?</p>
+  <input id="nm" maxlength="14" value="Kathy" autocomplete="off">
+  <button id="go">Empezar 💛</button>
+  <p class="who" style="margin-top:12px">Mejor con sonido 🎧 · móvil: joystick · PC: flechas o WASD</p>
+</div></div>
+
+<div id="modal" class="ov"><div class="card">
+  <img id="mi" alt="" style="display:none">
+  <div class="pair"><div><div class="ic"><img src="assets/ella.png" style="transform-origin:35% 32%" alt=""></div><small id="n1"></small></div><span id="me"></span><div><div class="ic"><img src="assets/el.png" style="transform-origin:46% 31%" alt=""></div><small id="n2"></small></div></div>
+  <h2 id="mt"></h2>
+  <p class="who">Gatito Eras 🐱 dice:</p>
+  <div id="mx"></div>
+  <button id="mb">Continuar</button>
+</div></div>
+
+<div id="fin" class="ov"><div class="card">
+  <canvas id="fc" width="360" height="220"></canvas>
+  <div class="big" id="ft"></div>
+  <div class="row" id="fb">
+    <button id="yes">Sí, intentémoslo 💛</button>
+    <button id="wait" class="alt">Necesito tiempo 🤍</button>
+  </div>
+  <p id="fr" style="margin-top:12px;font-size:16px"></p>
+</div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const cv=$('c'),ctx=cv.getContext('2d');
+let her='Kathy',GN='Gatito Eras',W,H,S,started=false,modalOpen=false,cur=0;
+const WW=3000,WH=400;
+
+/* ---------- ESCENAS ---------- */
+const scenes=[
+{e:'🎮',t:'Nos conocimos',img:'assets/foto1.jpeg',x:560,y:250,
+ x1:`Nos conocimos, mi pequeñita {n}, cuando jugábamos. Sin darme cuenta me terminé enamorando de ti.\n\nEse día pasamos toda la noche jugando, y al día siguiente nos quedamos hablando. Sin querer, ahí empezó nuestra historia.`},
+{e:'❤️',t:'Nos enamoramos',x:980,y:200,
+ x1:`Mientras hablábamos, sin darnos cuenta, nos fuimos enamorando.\n\nY así, de la forma más bonita y natural, terminamos siendo novios.`},
+{e:'🌙',t:'Mi vida contigo',x:1400,y:270,
+ x1:`Durante ese tiempo como novios, no sabes lo feliz que fui y lo que me hiciste sentir.\n\nEras la persona más importante para mí y yo no veía nada más que una vida junto a ti.`},
+{e:'🏠',t:'Tu casa, tus días',img:'assets/foto2.jpeg',x:1820,y:210,
+ x1:`Fui a visitarte a tu casa. Hubo cosas muy graciosas, y disfruté cada momento: pasar tiempo contigo, besarte y "probarte" mi amor.\n\nFueron los mejores 6 días de este año.`},
+{e:'🌧️',t:'El momento más feo',x:2240,y:260,
+ x1:`Vino el momento más feo, y tomaste la decisión de que lo mejor era separarnos.\n\nNo fue fácil. Pero incluso en la lluvia, no dejé de quererte.`},
+{e:'❤️‍🩹',t:'Volviste',x:2650,y:230,
+ x1:`A pesar de todo, volviste, mi amor.\n\nSé que te sientes dañada y que no sabes lo que quieres. Sé que estás confundida, pero me prometiste que cuando volvieras no te ibas a volver a ir.\n\nAunque no sé si todavía me amas, yo te amo a ti. Eres de las personas más importantes que he conocido, y estar contigo me hizo querer ser mejor.\n\nMe duele saber que estás dañada, más sabiendo que este gatito ama a su niña tiquita con todo el corazón. Quisiera abrazarte y que todo pesara menos.\n\nNo te pido nada hoy. Solo quiero que sepas que me importas, y que aquí estoy.`}
+];
+const quotes=['Eres más fuerte de lo que crees 💪','Aquí estoy contigo, siempre 💛','Cada paso cuenta, {n}','Me encanta verte avanzar ✨','Tu sonrisa es mi parte favorita del juego 🎮','Respira. No hay prisa 🌙','Eres lo más bonito que me ha pasado 🌸','Estoy orgulloso de ti, tiquita 🤍','Tú ganas incluso cuando sientes que no 🏆'];
+const T=s=>s.replace(/\{n\}/g,her);
+
+/* ---------- ENTRADA ---------- */
+const keys={};let jx=0,jy=0;
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=1});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=0});
+const joy=$('joy'),kn=$('knob');let jid=null;
+function jmove(t){const r=joy.getBoundingClientRect(),cx=r.left+60,cy=r.top+60;let dx=t.clientX-cx,dy=t.clientY-cy;const d=Math.hypot(dx,dy),m=45;if(d>m){dx*=m/d;dy*=m/d}kn.style.left=35+dx+'px';kn.style.top=35+dy+'px';jx=dx/m;jy=dy/m}
+joy.addEventListener('touchstart',e=>{e.preventDefault();jid=e.changedTouches[0].identifier;jmove(e.changedTouches[0])},{passive:false});
+joy.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===jid)jmove(t)},{passive:false});
+const jend=e=>{jid=null;jx=jy=0;kn.style.left=kn.style.top='35px'};
+joy.addEventListener('touchend',jend);joy.addEventListener('touchcancel',jend);
+
+/* ---------- MÚSICA (generada, sin archivos) ---------- */
+let ac,mg,on=true;
+function music(){
+ if(ac)return;
+ ac=new(window.AudioContext||window.webkitAudioContext)();
+ mg=ac.createGain();mg.gain.value=.5;
+ const d=ac.createDelay();d.delayTime.value=.42;const fb=ac.createGain();fb.gain.value=.38;
+ d.connect(fb);fb.connect(d);mg.connect(ac.destination);mg.connect(d);d.connect(ac.destination);
+ const ch=[[48,55,60,64,67,71],[45,52,60,64,67,72],[41,48,57,60,64,69],[43,50,59,62,67,71]];
+ const pat=[2,3,4,3,5,4,3,2];let i=0;
+ const note=(m,t,du,v,ty)=>{const o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.value=440*Math.pow(2,(m-69)/12);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+du);
+  o.connect(g);g.connect(mg);o.start(t);o.stop(t+du+.1)};
+ (function bar(){const t=ac.currentTime+.05,c=ch[i++%4];
+  note(c[0],t,4,.13,'sine');note(c[1],t,4,.07,'sine');
+  pat.forEach((k,j)=>note(c[k],t+j*.5,1.5,.085,'triangle'));
+  setTimeout(bar,4000)})();
+}
+$('mute').onclick=()=>{on=!on;$('mute').textContent=on?'🔊':'🔇';if(mg)mg.gain.value=on?.5:0};
+
+/* ---------- DIBUJO DE PERSONAJES (pixel art en código) ---------- */
+const HER={skin:'#f0b48c',sk2:'#d4906a',hair:'#6b3a22',hl:'#8f5a3a',shirt:'#f4f7fb',sh2:'#c3cedd',pants:'#3a4a6a',shoe:'#e86a8a',long:1,her:1};
+const GUY={skin:'#c88a5c',sk2:'#a96d44',hair:'#2a1a14',hl:'#4a3228',shirt:'#f0d77a',sh2:'#cfae4a',pants:'#3d3d46',shoe:'#e8e8e8',long:0};
+/* Estilo Pokémon: chibi, contorno negro, 4 direcciones (d,u,l,r) */
+function person(g,x,y,c,dir,walk,sc=1.15){
+ const sh=[],A=(col,a,b,w,h)=>sh.push([col,a,b,w,h]);
+ const sw=Math.sin(walk),l1=sw>.3?1:0,l2=sw<-.3?1:0,side=dir==='l'||dir==='r',E='#2a1a14';
+ if(!side){
+  if(c.long)A(c.hair,-7,-15,14,10);
+  A(c.pants,-4,-2-l1,3,1);A(c.shoe,-4,-1-l1,3,1);A(c.pants,1,-2-l2,3,1);A(c.shoe,1,-1-l2,3,1);
+  A(c.shirt,-4,-7,8,5);A(c.sh2,-4,-3,8,1);
+  A(c.skin,-6,-6-l2,2,4);A(c.shirt,-6,-6-l2,2,2);A(c.skin,4,-6-l1,2,4);A(c.shirt,4,-6-l1,2,2);
+  if(dir==='d'){
+   A(c.skin,-6,-17,12,10);A(c.sk2,-5,-8,10,1);
+   A(c.hair,-7,-18,14,4);A(c.hair,-7,-15,2,c.long?10:4);A(c.hair,5,-15,2,c.long?10:4);A(c.hair,-5,-14,3,1);A(c.hair,2,-14,3,1);A(c.hl,-3,-18,3,1);
+   A(E,-4,-11,2,3);A(E,2,-11,2,3);A('#fff',-4,-11,1,1);A('#fff',2,-11,1,1);A('#d97a72',-1,-9,2,1);
+   if(c.her){A('#ff7aa8',2,-20,4,3);A('#d94d80',3,-19,1,1);A('#cfd8e0',-2,-7,4,1);A('#9fb0c0',-1,-6,2,1);A('#f48fb1',-4,-7,1,3);A('#f48fb1',3,-7,1,3)}
+   else{A(c.hair,-6,-20,3,2);A(c.hair,-2,-21,4,3);A(c.hair,3,-20,3,2);A(c.hair,-8,-17,2,3);A(c.hair,6,-17,2,3)}
+  }else{
+   A(c.hair,-7,-18,14,c.long?14:10);A(c.hl,-3,-17,3,1);
+   if(c.her)A('#ff7aa8',2,-20,4,3);
+   else{A(c.hair,-6,-20,3,2);A(c.hair,-2,-21,4,3);A(c.hair,3,-20,3,2);A(c.skin,-3,-8,6,1)}
+  }
+ }else{
+  const d=sw>.3?2:sw<-.3?-2:0;
+  if(c.long)A(c.hair,0,-15,7,11);
+  A(c.pants,-2-d,-2,3,1);A(c.shoe,-3-d,-1,4,1);A(c.pants,-2+d,-2,3,1);A(c.shoe,-3+d,-1,4,1);
+  A(c.shirt,-3,-7,7,5);A(c.sh2,-3,-3,7,1);A(c.skin,-1,-6,2,4);A(c.shirt,-1,-6,2,2);
+  A(c.skin,-6,-17,11,10);A(c.sk2,-5,-8,9,1);A(c.skin,-7,-11,1,2);
+  A(c.hair,-6,-18,13,4);A(c.hair,1,-15,6,c.long?9:6);A(c.hair,-6,-15,2,1);A(c.hl,-2,-18,3,1);
+  A(E,-4,-11,2,3);A('#fff',-4,-11,1,1);A('#d97a72',-3,-9,1,1);
+  if(c.her){A('#ff7aa8',1,-20,4,3);A('#cfd8e0',-3,-7,2,1)}
+  else{A(c.hair,-5,-20,3,2);A(c.hair,-1,-21,4,3);A(c.hair,3,-20,3,2);A(c.hair,5,-17,3,3)}
+ }
+ g.save();g.translate(x,y);
+ g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(0,0,6*sc*2,2*sc*2,0,0,7);g.fill();
+ g.scale(dir==='r'?-sc*2:sc*2,sc*2);
+ g.fillStyle='#1a1020';sh.forEach(([,a,b,w,h])=>g.fillRect(a-1,b-1,w+2,h+2));
+ sh.forEach(([col,a,b,w,h])=>{g.fillStyle=col;g.fillRect(a,b,w,h)});
+ g.restore();
+}
+
+/* ---------- MUNDO ---------- */
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const decor=[];
+for(let x=20;x<WW;x+=70){decor.push({e:rnd()<.6?'🌳':'🌲',x:x+rnd()*30,y:60+rnd()*40,s:34});decor.push({e:rnd()<.5?'🌳':'🌿',x:x+rnd()*30,y:380+rnd()*10,s:30})}
+for(let i=0;i<70;i++)decor.push({e:['🌸','🌼','🌷','✨'][i%4],x:rnd()*WW,y:130+rnd()*250,s:14});
+decor.sort((a,b)=>a.y-b.y);
+const flies=Array.from({length:40},()=>({x:rnd()*WW,y:rnd()*WH,p:rnd()*6}));
+const P={x:60,y:250,vx:0,vy:0,w:0,d:'r'},G={x:130,y:230,w:0,d:'r'};
+let bubble='',bt=0,qt=6,t0=0;
+const say=(s,ms=3800)=>{bubble=T(s);bt=ms/1000};
+
+/* ---------- MODAL ---------- */
+function openScene(i){
+ const s=scenes[i];modalOpen=true;
+ $('me').textContent=s.e;$('n1').textContent=her;$('n2').textContent=GN;$('mt').textContent=s.t;
+ $('mx').innerHTML=T(s.x1).split('\n\n').map(p=>`<p>${p}</p>`).join('');
+ const im=$('mi');if(s.img){im.src=s.img;im.style.display='block'}else im.style.display='none';
+ $('mb').textContent=i==scenes.length-1?'Un último detalle 💌':'Continuar';
+ $('modal').classList.add('on');
+}
+$('mb').onclick=()=>{$('modal').classList.remove('on');modalOpen=false;cur++;
+ if(cur>=scenes.length)return finale();
+ say(['Sigamos, {n} 💛','Hay más recuerdos adelante ✨','Ven, por aquí 🌙','Ya casi llegamos 🌧️','Un poquito más, mi niña 🤍'][Math.min(cur-1,4)]);
+};
+$('go').onclick=()=>{her=($('nm').value.trim()||'Kathy');$('start').classList.remove('on');started=true;music();
+ $('hint').textContent='Camina hacia la derecha y toca los objetos brillantes →';
+ setTimeout(()=>say('Hola {n}. Soy '+GN+'. Te acompaño en este camino 💛',4500),600);
+ setTimeout(()=>$('hint').textContent='',9000)};
+
+/* ---------- FINAL ---------- */
+let finOn=false,hearts=[];
+function finale(){
+ finOn=true;$('fin').classList.add('on');
+ $('ft').innerHTML=`“¿Quieres volver a intentarlo? Sé que me dijiste que como amigos, pero la verdad es que en el fondo sé que todavía te amo, mi tiquita preciosa.” 💛`;
+ finLoop();
+}
+$('yes').onclick=()=>{$('fb').style.display='none';$('fr').innerHTML=`Gracias por llegar hasta el final, ${her}. Sea cual sea el camino, te quiero muchísimo. 💛<br><small>— ${GN}</small>`;for(let i=0;i<30;i++)hearts.push(newHeart(true))};
+$('wait').onclick=()=>{$('fb').style.display='none';$('fr').innerHTML=`Está bien, ${her}. Tómate todo el tiempo que necesites. Sin presión: aquí estaré, cuidándote de lejos o de cerca. 🤍<br><small>— ${GN}</small>`};
+const newHeart=f=>({x:Math.random()*360,y:f?220:220+Math.random()*60,s:8+Math.random()*14,v:12+Math.random()*25,p:Math.random()*6,e:['💛','💖','✨','💗'][Math.floor(Math.random()*4)]});
+for(let i=0;i<14;i++)hearts.push(newHeart());
+function finLoop(){
+ if(!finOn)return;
+ const f=$('fc').getContext('2d'),t=performance.now()/1000;f.imageSmoothingEnabled=false;
+ const g=f.createLinearGradient(0,0,0,220);g.addColorStop(0,'#3b2766');g.addColorStop(.6,'#c8608a');g.addColorStop(1,'#ffb48a');
+ f.fillStyle=g;f.fillRect(0,0,360,220);
+ f.fillStyle='#fff';for(let i=0;i<30;i++){f.globalAlpha=.4+.6*Math.abs(Math.sin(t+i));f.fillRect((i*97)%360,(i*53)%110,2,2)}f.globalAlpha=1;
+ f.fillStyle='#4f9a6a';f.fillRect(0,170,360,50);
+ f.font='54px serif';f.textAlign='center';f.fillText('💛',180,100+Math.sin(t*2)*5);
+ person(f,135,195,HER,'d',0,2);person(f,225,195,GUY,'d',0,2);
+ hearts.forEach(h=>{h.y-=h.v/60;h.x+=Math.sin(t+h.p)*.3;if(h.y<-20){h.y=235;h.x=Math.random()*360}f.font=h.s+'px serif';f.fillText(h.e,h.x,h.y)});
+ requestAnimationFrame(finLoop);
+}
+
+/* ---------- LOOP ---------- */
+function rs(){cv.width=W=innerWidth;cv.height=H=innerHeight;S=Math.min(H/WH,W/300)}
+addEventListener('resize',rs);rs();
+function emo(e,x,y,s,a=1){ctx.globalAlpha=a;ctx.font=s+'px serif';ctx.textAlign='center';ctx.fillText(e,x,y);ctx.globalAlpha=1}
+function sign(x,y){
+ ctx.fillStyle='#6b4423';ctx.fillRect(x-40,y-30,6,34);ctx.fillRect(x+34,y-30,6,34);
+ ctx.fillStyle='#c98f52';ctx.fillRect(x-52,y-72,104,44);ctx.strokeStyle='#4a2d14';ctx.lineWidth=3;ctx.strokeRect(x-52,y-72,104,44);
+ ctx.fillStyle='#3a2210';ctx.font='600 17px Fredoka, sans-serif';ctx.textAlign='center';ctx.fillText('Nos',x,y-52);ctx.fillText('conocemos',x,y-34);
+}
+function bubbleDraw(x,y,s){
+ ctx.font='600 13px Fredoka, sans-serif';const w=Math.min(190,ctx.measureText(s).width+18);
+ const words=s.split(' '),lines=[];let l='';
+ words.forEach(wd=>{if(ctx.measureText(l+wd).width>w-14){lines.push(l);l=''}l+=wd+' '});lines.push(l);
+ const h=lines.length*16+10,bx=Math.max(cam+4,Math.min(x-w/2,cam+W/S-w-4)),by=y-h-8;
+ ctx.fillStyle='#fff6ec';ctx.strokeStyle='#2b1d3a';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(bx,by,w,h,8);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#2b1d3a';ctx.textAlign='left';lines.forEach((ln,i)=>ctx.fillText(ln.trim(),bx+8,by+17+i*16));
+}
+let cam=0,last=performance.now();
+function frame(now){
+ const dt=Math.min(.05,(now-last)/1000);last=now;const t=now/1000;
+ let ix=jx+(keys['arrowright']||keys['d']?1:0)-(keys['arrowleft']||keys['a']?1:0);
+ let iy=jy+(keys['arrowdown']||keys['s']?1:0)-(keys['arrowup']||keys['w']?1:0);
+ const m=Math.hypot(ix,iy);if(m>1){ix/=m;iy/=m}
+ if(started&&!modalOpen&&!finOn&&m>.1){P.x+=ix*105*dt;P.y+=iy*105*dt;P.w+=dt*11;if(Math.abs(ix)>Math.abs(iy))P.d=ix>0?'r':'l';else P.d=iy>0?'d':'u'}else P.w*=.9;
+ P.x=Math.max(30,Math.min(WW-30,P.x));P.y=Math.max(120,Math.min(385,P.y));
+ // guía
+ const tx=cur<scenes.length?Math.min(scenes[cur].x-70,P.x+120):P.x+50,ty=P.y-14;
+ const gdx=tx-G.x;G.x+=gdx*dt*1.8;G.y+=(ty-G.y)*dt*1.8;G.w+=Math.abs(gdx)>6?dt*9:0;G.d=Math.abs(gdx)>8?(gdx>0?'r':'l'):'d';
+ // interacción
+ if(started&&!modalOpen&&!finOn&&cur<scenes.length){const s=scenes[cur];if(Math.hypot(P.x-s.x,(P.y-s.y)*1.4)<42)openScene(cur)}
+ // frases del guía
+ if(started&&!modalOpen&&!finOn){bt-=dt;qt-=dt;if(qt<=0&&bt<=0){say(quotes[Math.floor(Math.random()*quotes.length)]);qt=11+Math.random()*6}}
+ // cámara
+ const vw=W/S;cam=Math.max(0,Math.min(WW-vw,P.x-vw/2));
+ // dibujo
+ ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#3f7d5e';ctx.fillRect(0,0,W,H);
+ ctx.setTransform(S,0,0,S,-cam*S,(H-WH*S)/2);
+ ctx.imageSmoothingEnabled=false;
+ ctx.fillStyle='#4a8f6a';ctx.fillRect(0,0,WW,WH);
+ ctx.fillStyle='#e9d6a4';ctx.beginPath();ctx.roundRect(0,205,WW,95,40);ctx.fill();
+ ctx.fillStyle='rgba(120,90,50,.15)';for(let x=0;x<WW;x+=46)ctx.fillRect(x,250+((x/46)%2)*18,22,4);
+ decor.forEach(d=>{if(d.x>cam-40&&d.x<cam+vw+40)emo(d.e,d.x,d.y,d.s)});
+ sign(130,215);
+ scenes.forEach((s,i)=>{
+  const done=i<cur,next=i==cur,bob=Math.sin(t*3+i)*3;
+  if(next){ctx.fillStyle=`rgba(255,217,138,${.25+.15*Math.sin(t*4)})`;ctx.beginPath();ctx.ellipse(s.x,s.y,34+Math.sin(t*4)*4,16,0,0,7);ctx.fill()}
+  emo(s.e,s.x,s.y-8+bob,40,done?.35:1);if(done)emo('✓',s.x+18,s.y-30,16);
+ });
+ flies.forEach(f=>{const a=.4+.6*Math.abs(Math.sin(t*2+f.p));ctx.fillStyle=`rgba(255,240,150,${a})`;ctx.fillRect(f.x+Math.sin(t+f.p)*8,f.y+Math.cos(t*.8+f.p)*8,2,2)});
+ [[P,HER],[G,GUY]].sort((a,b)=>a[0].y-b[0].y).forEach(([o,c])=>person(ctx,o.x,o.y,c,o.d,o.w));
+ ctx.font='600 11px Fredoka, sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff6ec';
+ ctx.fillText(her,P.x,P.y-50);ctx.fillText(GN,G.x,G.y-50);
+ if(bt>0&&started)bubbleDraw(G.x,G.y-58,bubble);
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
